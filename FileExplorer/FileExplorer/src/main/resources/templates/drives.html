@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>Drives</title>
+	</head>
+	<body>
+		<div>
+			<h1 style="text-align: center;">File Explorer</h1>
+			<h3>Path -> Drives</h3>
+			<div style=" display: flex; flex-direction: row; justify-content: space-around;">
+				<div style="padding: 10px; width: 30%; text-align: center;" th:each="drive: ${drives}">
+					<img th:src="@{/images/folder.png}" style="width: 100px; height: 100px;" />
+					<a th:href="@{|/assignment/folder/${drive.id}|}" style="text-decoration: none;">
+						<p th:text="${drive.name}" style="margin: 4px; font-size: 24px;"></p>
+						<p style="margin: 1px"><span th:text="${drive.folders}"></span> Folders</p>
+						<p style="margin: 1px"><span th:text="${drive.files}"></span> Files</p>
+					</a>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
