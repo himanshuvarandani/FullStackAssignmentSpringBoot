@@ -15,8 +15,19 @@ public class SaveDriveDetails {
     static final String USER = "chandra";
     static final String PASS = "possword";
     
-    public static Map<String, String> getFolderDetails(File folder, int parentId, int newId) {
-    	String values = "";
+    public static void insertIntoDatabase(Statement stmt, int id, String name, String type, int folders, int files, int parentId) {
+    	String sql;
+    	sql = String.format("INSERT INTO chandra.drives VALUES (%2d, '%s', '%s', %2d, %2d, %2d)", id, name, type, folders, files, parentId);
+    	
+    	try {
+			stmt.executeUpdate(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    public static Map<String, String> getFolderDetails(Statement stmt, File folder, int parentId, int newId) {
     	int folders = 0;
     	int files = 0;
     	
@@ -24,22 +35,23 @@ public class SaveDriveDetails {
     	
     	for (File obj: content) {
     		if (obj.isFile()) {
-    			values += String.format(", (%2d, '%s', 'file', 0, 0, %2d)", newId, obj.getName(), parentId);
+    			System.out.println("Inserting a File into Database...");
+    			insertIntoDatabase(stmt, newId, obj.getName(), "file", 0, 0, parentId);
     			files += 1;
     			newId += 1;
     		} else {
-    			Map<String, String> map = getFolderDetails(obj, newId, newId+1);
-    			values += String.format(", (%2d, '%s', 'folder', %s, %s, %2d)", newId, obj.getName(), map.get("folders"), map.get("files"), parentId);
-    			if (map.get("values") != "") {
-    				values += map.get("values");
-    			}
+    			System.out.println("Fetching Folder Details...");
+    			Map<String, String> map = getFolderDetails(stmt, obj, newId, newId+1);
+    			
+    			System.out.println("Inserting Folder into Database...");
+    			insertIntoDatabase(stmt, newId, obj.getName(), "folder",
+    					Integer.valueOf(map.get("folders")), Integer.valueOf(map.get("files")), parentId);
     			folders += 1;
-    			newId = Integer.valueOf(map.get("newId"));
+    			newId = Integer.valueOf(map.get("newId"))+1;
     		}
     	}
     	
     	Map<String, String> map = new HashMap<String, String>();
-    	map.put("values", values);
     	map.put("folders", String.valueOf(folders));
     	map.put("files", String.valueOf(files));
     	map.put("newId", String.valueOf(newId));
@@ -60,8 +72,6 @@ public class SaveDriveDetails {
 			// Execute a query
 			System.out.println("Creating statement...");
 			stmt = conn.createStatement();
-
-			File drive = new File("C:\\Users\\Padmavathi\\Downloads\\TCS\\D");
 			
 			String sql;
 			sql = "SELECT count(*) as total FROM chandra.drives";
@@ -69,19 +79,16 @@ public class SaveDriveDetails {
 			ResultSet rs = stmt.executeQuery(sql);
 			rs.next();
 			int newId = rs.getInt("total")+1;
-			
+
+			File drive = new File("C:\\Users\\Padmavathi\\Downloads\\TCS\\D");
 			String driveName = "D:";
 			
 			System.out.println("Fetching Drive Details...");
-			Map<String, String> map = getFolderDetails(drive, newId, newId+1);
-			String values = String.format("(%2d, '%s', 'drive', %s, %s, 0)", newId, driveName, map.get("folders"), map.get("files"));
-			if (map.get("values") != "") {
-				values += map.get("values");
-			}
+			Map<String, String> map = getFolderDetails(stmt, drive, newId, newId+1);
 			
-			System.out.println("Inserting into Database...");
-			sql = "INSERT INTO chandra.drives VALUES " + values;
-			stmt.executeUpdate(sql);
+			System.out.println("Inserting Drive into Database...");
+			insertIntoDatabase(stmt, newId, driveName, "drive",
+					Integer.valueOf(map.get("folders")), Integer.valueOf(map.get("files")), 0);
 			System.out.println("Completed...");
 		} catch (SQLException se) {
 			// Handle errors for JDBC
