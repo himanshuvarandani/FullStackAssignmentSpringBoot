@@ -5,7 +5,10 @@
 	<body>
 		<div>
 			<h1 style="text-align: center;">File Explorer</h1>
-			<h3>Path -> Folder <span th:text="${folderDetails.name}"></span></h3>
+			<h3>
+				Path -> <span th:text="${folderDetails.path}"></span>
+				\<span th:text="${folderDetails.name}"></span>
+			</h3>
 			<div style=" display: flex; flex-direction: row; justify-content: space-around;">
 				<div style="padding: 10px; width: 30%; text-align: center;" th:each="folder: ${folderChildren}">
 					<img th:if="${folder.type=='folder'}" th:src="@{/images/folder.png}" style="width: 100px; height: 100px;" />

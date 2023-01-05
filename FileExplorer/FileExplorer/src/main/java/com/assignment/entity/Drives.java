@@ -15,6 +15,7 @@ public class Drives {
 	private Integer folders;
 	private Integer files;
 	private Integer parentFolderId;
+	private String Path;
 	
 	public Integer getId() {
 		return id;
@@ -51,6 +52,12 @@ public class Drives {
 	}
 	public void setParentFolderId(Integer parentFolderId) {
 		this.parentFolderId = parentFolderId;
+	}
+	public String getPath() {
+		return Path;
+	}
+	public void setPath(String path) {
+		Path = path;
 	}
 }
 
